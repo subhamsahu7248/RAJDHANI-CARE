@@ -18,8 +18,6 @@ public class Booking {
     private String service;
     private String date;
     private String time;
-
-    // Booking status
     private String status;
 
     public Booking() {
@@ -81,12 +79,10 @@ public class Booking {
         this.time = time;
     }
 
-    // Status getter
     public String getStatus() {
         return status;
     }
 
-    // Status setter
     public void setStatus(String status) {
         this.status = status;
     }

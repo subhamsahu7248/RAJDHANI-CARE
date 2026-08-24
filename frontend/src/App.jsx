@@ -129,17 +129,31 @@ function App() {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/bookings/${statusCheck.id}/phone/${statusCheck.phone}`
-      );
+      const bookingId = statusCheck.id.trim();
+      const phoneNumber = statusCheck.phone.trim();
+
+      const url =
+        `http://localhost:8080/api/bookings/` +
+        `${bookingId}/phone/${phoneNumber}`;
+
+      console.log("Checking booking:", url);
+
+      const response = await fetch(url);
+
+      console.log("Response status:", response.status);
 
       if (!response.ok) {
-        throw new Error("Booking not found");
+        throw new Error(
+          `Booking not found. Server returned ${response.status}`
+        );
       }
 
       const data = await response.json();
 
+      console.log("Booking found:", data);
+
       setCheckedBooking(data);
+
     } catch (error) {
       console.error("Status Check Error:", error);
 
@@ -655,6 +669,16 @@ function App() {
                 </p>
 
                 <p>
+                  <strong>Phone:</strong>{" "}
+                  {checkedBooking.phone}
+                </p>
+
+                <p>
+                  <strong>Address:</strong>{" "}
+                  {checkedBooking.address}
+                </p>
+
+                <p>
                   <strong>Service:</strong>{" "}
                   {checkedBooking.service}
                 </p>
@@ -763,8 +787,6 @@ function App() {
               Rajdhani Care Booking Management
             </p>
 
-            {/* STATISTICS */}
-
             <div className="dashboard-stats">
 
               <div className="stat-card">
@@ -793,8 +815,6 @@ function App() {
               </div>
 
             </div>
-
-            {/* SEARCH + FILTER */}
 
             <div className="admin-tools">
 
@@ -838,8 +858,6 @@ function App() {
 
             </div>
 
-            {/* ACTIONS */}
-
             <div className="admin-top-actions">
 
               <button
@@ -857,8 +875,6 @@ function App() {
               </button>
 
             </div>
-
-            {/* BOOKINGS */}
 
             {filteredBookings.length === 0 ? (
 
@@ -935,8 +951,6 @@ function App() {
                         {item.time}
                       </p>
 
-                      {/* BUTTONS */}
-
                       <div className="booking-actions">
 
                         <button
@@ -987,12 +1001,10 @@ function App() {
                       </div>
 
                     </div>
-
                   );
                 })}
 
               </div>
-
             )}
 
           </div>

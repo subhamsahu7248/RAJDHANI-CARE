@@ -1,790 +1,11 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  background: #fffaf5;
-  color: #333;
-}
+/* =========================================================
+   RAJDHANI CARE - CLEAN APP.CSS
+========================================================= */
 
 /* =========================
-   NAVBAR
+   GLOBAL
 ========================= */
 
-nav {
-  height: 70px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 8%;
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-nav h2 {
-  font-size: 24px;
-  color: #c94b6c;
-}
-
-nav div {
-  display: flex;
-  gap: 25px;
-  align-items: center;
-}
-
-nav a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 600;
-}
-
-nav a:hover {
-  color: #c94b6c;
-}
-
-/* Navbar Bookings Button */
-
-nav button {
-  padding: 10px 18px;
-  border-radius: 20px;
-  font-size: 14px;
-}
-
-/* =========================
-   COMMON
-========================= */
-
-section {
-  padding: 80px 8%;
-}
-
-button {
-  border: none;
-  padding: 14px 30px;
-  border-radius: 30px;
-  background: #c94b6c;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  background: #a83c58;
-  transform: translateY(-2px);
-}
-
-/* =========================
-   HERO
-========================= */
-
-#home {
-  min-height: 600px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  text-align: center;
-
-  background: linear-gradient(
-    135deg,
-    #fff0f4,
-    #fffaf5
-  );
-}
-
-#home h1 {
-  font-size: 56px;
-  color: #c94b6c;
-  margin-bottom: 20px;
-}
-
-#home p {
-  font-size: 20px;
-  max-width: 600px;
-  margin-bottom: 30px;
-  line-height: 1.6;
-}
-
-/* =========================
-   SERVICES
-========================= */
-
-#services {
-  background: white;
-  text-align: center;
-}
-
-#services h2,
-#about h2,
-#contact h2,
-#bookings h2 {
-  font-size: 36px;
-  margin-bottom: 40px;
-  color: #c94b6c;
-}
-
-#services > div {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
-}
-
-#services > div > div {
-  padding: 30px;
-  border-radius: 15px;
-  background: #fff7f8;
-
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-
-  transition: 0.3s;
-}
-
-#services > div > div:hover {
-  transform: translateY(-8px);
-}
-
-#services h3 {
-  margin-bottom: 15px;
-  color: #c94b6c;
-}
-
-#services p {
-  line-height: 1.6;
-}
-
-/* =========================
-   ABOUT
-========================= */
-
-#about {
-  text-align: center;
-  background: #fff0f4;
-}
-
-#about p {
-  max-width: 700px;
-  margin: auto;
-  font-size: 18px;
-  line-height: 1.8;
-}
-
-/* =========================
-   CONTACT
-========================= */
-
-#contact {
-  text-align: center;
-  background: white;
-}
-
-#contact p {
-  margin: 15px 0;
-  font-size: 18px;
-}
-
-#contact button {
-  margin-top: 20px;
-}
-
-/* =========================
-   BOOKING POPUP
-========================= */
-
-.booking-overlay {
-  position: fixed;
-
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
-  background: rgba(0, 0, 0, 0.6);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  z-index: 100;
-}
-
-.booking-form {
-  position: relative;
-
-  width: 450px;
-  max-width: 90%;
-
-  max-height: 90vh;
-  overflow-y: auto;
-
-  background: white;
-
-  padding: 35px;
-
-  border-radius: 20px;
-
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-}
-
-.booking-form h2 {
-  text-align: center;
-
-  color: #c94b6c;
-
-  margin-bottom: 25px;
-}
-
-.booking-form input,
-.booking-form select {
-  width: 100%;
-
-  padding: 13px;
-
-  margin-bottom: 15px;
-
-  border: 1px solid #ddd;
-
-  border-radius: 8px;
-
-  font-size: 15px;
-
-  outline: none;
-}
-
-.booking-form input:focus,
-.booking-form select:focus {
-  border-color: #c94b6c;
-}
-
-.booking-form button:not(.close-btn) {
-  width: 100%;
-}
-
-.close-btn {
-  position: absolute;
-
-  right: 15px;
-  top: 15px;
-
-  border: none;
-
-  background: transparent;
-
-  color: #555;
-
-  font-size: 20px;
-
-  cursor: pointer;
-
-  padding: 5px 10px;
-}
-
-.close-btn:hover {
-  background: transparent;
-
-  color: #c94b6c;
-
-  transform: none;
-}
-
-/* =========================
-   ADMIN BOOKINGS
-========================= */
-
-#bookings {
-  background: #fff0f4;
-
-  text-align: center;
-
-  min-height: 400px;
-}
-
-#bookings > button {
-  margin-bottom: 30px;
-
-  padding: 10px 22px;
-
-  font-size: 14px;
-}
-
-/* Booking List */
-
-#bookings > div {
-  max-width: 900px;
-
-  margin: auto;
-
-  text-align: left;
-}
-
-/* Individual Booking */
-
-#bookings > div > div {
-  background: white;
-
-  padding: 25px;
-
-  margin-bottom: 20px;
-
-  border-radius: 15px;
-
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-
-  transition: 0.3s;
-}
-
-#bookings > div > div:hover {
-  transform: translateY(-3px);
-
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-#bookings h3 {
-  color: #c94b6c;
-
-  margin-bottom: 15px;
-
-  font-size: 20px;
-}
-
-#bookings p {
-  margin: 9px 0;
-
-  line-height: 1.5;
-}
-
-#bookings hr {
-  border: none;
-
-  border-top: 1px solid #eee;
-
-  margin-top: 20px;
-}
-
-/* No bookings */
-
-#bookings > p {
-  color: #777;
-
-  font-size: 18px;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 768px) {
-
-  nav {
-    padding: 0 5%;
-  }
-
-  nav h2 {
-    font-size: 19px;
-  }
-
-  nav div {
-    gap: 10px;
-  }
-
-  nav a {
-    display: none;
-  }
-
-  nav button {
-    padding: 9px 14px;
-    font-size: 13px;
-  }
-
-  #home h1 {
-    font-size: 38px;
-  }
-
-  #home p {
-    font-size: 17px;
-  }
-
-  #services > div {
-    grid-template-columns: 1fr;
-  }
-
-  section {
-    padding: 60px 5%;
-  }
-
-  #services h2,
-  #about h2,
-  #contact h2,
-  #bookings h2 {
-    font-size: 30px;
-  }
-
-  .booking-form {
-    width: 95%;
-
-    padding: 30px 20px;
-  }
-
-  #bookings > div > div {
-    padding: 20px;
-  }
-}
-/* =========================
-   ADMIN DASHBOARD
-========================= */
-
-.admin-dashboard {
-  position: relative;
-
-  width: 850px;
-  max-width: 92%;
-
-  max-height: 90vh;
-  overflow-y: auto;
-
-  background: white;
-
-  padding: 40px;
-
-  border-radius: 20px;
-
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
-}
-
-.admin-dashboard h2 {
-  text-align: center;
-  color: #c94b6c;
-  margin-bottom: 8px;
-}
-
-.admin-subtitle {
-  text-align: center;
-  color: #777;
-  margin-bottom: 25px;
-}
-
-.refresh-btn {
-  display: block;
-  margin: 0 auto 20px auto;
-
-  padding: 10px 20px;
-
-  font-size: 14px;
-}
-
-.booking-count {
-  text-align: center;
-
-  background: #fff0f4;
-
-  color: #c94b6c;
-
-  padding: 15px;
-
-  border-radius: 10px;
-
-  font-weight: bold;
-
-  margin-bottom: 25px;
-}
-
-.admin-bookings {
-  display: grid;
-  gap: 18px;
-}
-
-.admin-booking-card {
-  padding: 22px;
-
-  border: 1px solid #f0dfe4;
-
-  border-radius: 14px;
-
-  background: #fffafa;
-
-  transition: 0.3s;
-}
-
-.admin-booking-card:hover {
-  transform: translateY(-3px);
-
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-}
-
-.booking-header {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  margin-bottom: 15px;
-
-  gap: 15px;
-}
-
-.booking-header h3 {
-  color: #c94b6c;
-}
-
-.booking-header span {
-  background: #c94b6c;
-
-  color: white;
-
-  padding: 7px 12px;
-
-  border-radius: 20px;
-
-  font-size: 13px;
-}
-
-.admin-booking-card p {
-  margin: 8px 0;
-
-  line-height: 1.5;
-}
-
-.no-bookings {
-  text-align: center;
-
-  color: #777;
-
-  padding: 30px;
-}
-
-@media (max-width: 768px) {
-
-  .admin-dashboard {
-    width: 95%;
-
-    padding: 30px 20px;
-  }
-
-  .booking-header {
-    flex-direction: column;
-
-    align-items: flex-start;
-  }
-
-}
-/* =========================
-   BOOKING STATUS
-========================= */
-
-.status-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 15px 0;
-}
-
-.booking-status {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.status-pending {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.status-confirmed {
-  background: #d4edda;
-  color: #155724;
-}
-
-.status-cancelled {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.status-completed {
-  background: #d1ecf1;
-  color: #0c5460;
-}
-
-/* =========================
-   BOOKING ACTIONS
-========================= */
-
-.booking-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-.booking-actions button {
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.confirm-btn {
-  background: #28a745;
-}
-
-.confirm-btn:hover {
-  background: #218838;
-}
-
-.cancel-btn {
-  background: #dc3545;
-}
-
-.cancel-btn:hover {
-  background: #c82333;
-}
-
-.complete-btn {
-  background: #17a2b8;
-}
-
-.complete-btn:hover {
-  background: #138496;
-}
-
-/* =========================
-   LOGOUT
-========================= */
-
-.logout-btn {
-  background: #555;
-  margin-left: 10px;
-}
-
-.logout-btn:hover {
-  background: #333;
-}
-/* =========================
-   DASHBOARD STATISTICS
-========================= */
-
-.dashboard-stats {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin: 25px 0;
-}
-
-.stat-card {
-  text-align: center;
-  padding: 15px 8px;
-  border-radius: 12px;
-  background: #fff7f8;
-  border: 1px solid #f0dfe4;
-}
-
-.stat-card h3 {
-  font-size: 28px;
-  color: #c94b6c;
-  margin-bottom: 5px;
-}
-
-.stat-card p {
-  font-size: 13px;
-  margin: 0;
-}
-
-.pending-stat h3 {
-  color: #856404;
-}
-
-.confirmed-stat h3 {
-  color: #218838;
-}
-
-.completed-stat h3 {
-  color: #138496;
-}
-
-.cancelled-stat h3 {
-  color: #c82333;
-}
-
-/* =========================
-   SEARCH AND FILTER
-========================= */
-
-.admin-tools {
-  display: grid;
-  grid-template-columns: 1fr 200px;
-  gap: 12px;
-  margin-bottom: 15px;
-}
-
-.admin-tools input,
-.admin-tools select {
-  width: 100%;
-  padding: 12px;
-
-  border: 1px solid #ddd;
-  border-radius: 8px;
-
-  font-size: 14px;
-}
-
-.admin-top-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.admin-top-actions button {
-  padding: 10px 18px;
-}
-
-/* =========================
-   DELETE BUTTON
-========================= */
-
-.delete-btn {
-  background: #6c757d;
-}
-
-.delete-btn:hover {
-  background: #545b62;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 768px) {
-
-  .dashboard-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .admin-tools {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-top-actions {
-    flex-direction: column;
-  }
-
-  .booking-actions {
-    flex-direction: column;
-  }
-
-  .booking-actions button {
-    width: 100%;
-  }
-}
 * {
   margin: 0;
   padding: 0;
@@ -801,6 +22,12 @@ body {
   color: #333;
 }
 
+button,
+input,
+select {
+  font-family: inherit;
+}
+
 /* =========================
    NAVBAR
 ========================= */
@@ -811,8 +38,10 @@ nav {
   justify-content: space-between;
   align-items: center;
   padding: 0 8%;
+
   background: white;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -825,8 +54,8 @@ nav h2 {
 
 nav div {
   display: flex;
-  gap: 22px;
   align-items: center;
+  gap: 22px;
 }
 
 nav a {
@@ -847,28 +76,37 @@ nav button {
 }
 
 /* =========================
-   COMMON
+   COMMON BUTTON
 ========================= */
-
-section {
-  padding: 90px 8%;
-}
 
 button {
   border: none;
   padding: 14px 30px;
+
   border-radius: 30px;
+
   background: #c94b6c;
   color: white;
+
   font-size: 16px;
   font-weight: bold;
+
   cursor: pointer;
+
   transition: 0.3s;
 }
 
 button:hover {
   background: #a83c58;
   transform: translateY(-2px);
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+section {
+  padding: 90px 8%;
 }
 
 /* =========================
@@ -922,8 +160,7 @@ button:hover {
 
 #services h2,
 #about h2,
-#contact h2,
-#status h2 {
+#contact h2 {
   font-size: 38px;
   margin-bottom: 15px;
   color: #c94b6c;
@@ -932,13 +169,17 @@ button:hover {
 #services > div {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+
   gap: 25px;
+
   margin-top: 45px;
 }
 
 #services > div > div {
   padding: 35px 25px;
+
   border-radius: 18px;
+
   background: #fff7f8;
 
   border: 1px solid #f5e1e6;
@@ -950,12 +191,15 @@ button:hover {
 
 #services > div > div:hover {
   transform: translateY(-8px);
+
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
 #services h3 {
   margin-bottom: 15px;
+
   color: #c94b6c;
+
   font-size: 20px;
 }
 
@@ -975,9 +219,13 @@ button:hover {
 
 #about p {
   max-width: 700px;
+
   margin: 25px auto 0;
+
   font-size: 18px;
+
   line-height: 1.8;
+
   color: #555;
 }
 
@@ -992,7 +240,9 @@ button:hover {
 
 #contact p {
   margin: 15px 0;
+
   font-size: 18px;
+
   color: #555;
 }
 
@@ -1001,82 +251,7 @@ button:hover {
 }
 
 /* =========================
-   CHECK STATUS
-========================= */
-
-#status {
-  text-align: center;
-  background: #fff0f4;
-}
-
-#status > p {
-  color: #666;
-  font-size: 17px;
-}
-
-.status-search-box {
-  max-width: 600px;
-  margin: 35px auto;
-
-  display: flex;
-  gap: 12px;
-}
-
-.status-search-box input {
-  flex: 1;
-  padding: 15px 18px;
-
-  border: 1px solid #ddd;
-  border-radius: 10px;
-
-  font-size: 15px;
-  outline: none;
-}
-
-.status-search-box input:focus {
-  border-color: #c94b6c;
-}
-
-.status-search-box button {
-  padding: 13px 22px;
-}
-
-/* Customer Status */
-
-.customer-status-list {
-  max-width: 700px;
-  margin: 30px auto;
-
-  display: grid;
-  gap: 18px;
-
-  text-align: left;
-}
-
-.customer-status-card {
-  background: white;
-
-  padding: 25px;
-
-  border-radius: 15px;
-
-  border: 1px solid #f0dfe4;
-
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
-}
-
-.customer-status-card h3 {
-  color: #c94b6c;
-  margin-bottom: 15px;
-}
-
-.customer-status-card p {
-  margin: 8px 0;
-  line-height: 1.5;
-}
-
-/* =========================
-   BOOKING POPUP
+   BOOKING OVERLAY
 ========================= */
 
 .booking-overlay {
@@ -1084,22 +259,32 @@ button:hover {
 
   inset: 0;
 
+  width: 100%;
+  height: 100%;
+
   background: rgba(0, 0, 0, 0.65);
 
   display: flex;
+
   justify-content: center;
   align-items: center;
 
   z-index: 2000;
 }
 
+/* =========================
+   BOOKING FORM
+========================= */
+
 .booking-form {
   position: relative;
 
   width: 450px;
+
   max-width: 92%;
 
   max-height: 90vh;
+
   overflow-y: auto;
 
   background: white;
@@ -1113,7 +298,9 @@ button:hover {
 
 .booking-form h2 {
   text-align: center;
+
   color: #c94b6c;
+
   margin-bottom: 25px;
 }
 
@@ -1143,6 +330,10 @@ button:hover {
   width: 100%;
 }
 
+/* =========================
+   CLOSE BUTTON
+========================= */
+
 .close-btn {
   position: absolute;
 
@@ -1160,6 +351,8 @@ button:hover {
   cursor: pointer;
 
   padding: 5px 10px;
+
+  width: auto !important;
 }
 
 .close-btn:hover {
@@ -1178,9 +371,11 @@ button:hover {
   position: relative;
 
   width: 900px;
+
   max-width: 94%;
 
   max-height: 90vh;
+
   overflow-y: auto;
 
   background: white;
@@ -1194,18 +389,22 @@ button:hover {
 
 .admin-dashboard h2 {
   text-align: center;
+
   color: #c94b6c;
+
   margin-bottom: 8px;
 }
 
 .admin-subtitle {
   text-align: center;
+
   color: #777;
+
   margin-bottom: 25px;
 }
 
 /* =========================
-   STATISTICS
+   DASHBOARD STATISTICS
 ========================= */
 
 .dashboard-stats {
@@ -1240,6 +439,8 @@ button:hover {
 
 .stat-card p {
   font-size: 13px;
+
+  margin: 0;
 }
 
 .pending-stat h3 {
@@ -1259,7 +460,7 @@ button:hover {
 }
 
 /* =========================
-   ADMIN TOOLS
+   ADMIN SEARCH + FILTER
 ========================= */
 
 .admin-tools {
@@ -1293,7 +494,7 @@ button:hover {
 }
 
 /* =========================
-   ADMIN ACTIONS
+   ADMIN TOP ACTIONS
 ========================= */
 
 .admin-top-actions {
@@ -1312,6 +513,10 @@ button:hover {
   background: #c94b6c;
 }
 
+.refresh-btn:hover {
+  background: #a83c58;
+}
+
 .logout-btn {
   background: #555;
 }
@@ -1321,11 +526,12 @@ button:hover {
 }
 
 /* =========================
-   ADMIN BOOKINGS
+   ADMIN BOOKING LIST
 ========================= */
 
 .admin-bookings {
   display: grid;
+
   gap: 18px;
 }
 
@@ -1346,6 +552,10 @@ button:hover {
 
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
+
+/* =========================
+   BOOKING HEADER
+========================= */
 
 .booking-header {
   display: flex;
@@ -1396,6 +606,8 @@ button:hover {
 }
 
 .booking-status {
+  display: inline-block;
+
   padding: 6px 12px;
 
   border-radius: 20px;
@@ -1407,21 +619,25 @@ button:hover {
 
 .status-pending {
   background: #fff3cd;
+
   color: #856404;
 }
 
 .status-confirmed {
   background: #d4edda;
+
   color: #155724;
 }
 
 .status-cancelled {
   background: #f8d7da;
+
   color: #721c24;
 }
 
 .status-completed {
   background: #d1ecf1;
+
   color: #0c5460;
 }
 
@@ -1492,10 +708,36 @@ button:hover {
 }
 
 /* =========================
-   MOBILE
+   FOOTER
 ========================= */
 
+footer {
+  background: #2d2d2d;
+
+  color: white;
+
+  text-align: center;
+
+  padding: 30px 20px;
+}
+
+footer h3 {
+  margin-bottom: 10px;
+}
+
+footer p {
+  margin: 8px 0;
+
+  color: #ddd;
+}
+
+/* =========================================================
+   MOBILE RESPONSIVE
+========================================================= */
+
 @media (max-width: 768px) {
+
+  /* NAVBAR */
 
   nav {
     padding: 0 5%;
@@ -1515,12 +757,17 @@ button:hover {
 
   nav button {
     padding: 9px 14px;
+
     font-size: 13px;
   }
+
+  /* SECTIONS */
 
   section {
     padding: 60px 5%;
   }
+
+  /* HERO */
 
   #home {
     min-height: 550px;
@@ -1534,46 +781,53 @@ button:hover {
     font-size: 17px;
   }
 
+  /* SERVICES */
+
   #services > div {
     grid-template-columns: 1fr;
   }
 
   #services h2,
   #about h2,
-  #contact h2,
-  #status h2 {
+  #contact h2 {
     font-size: 30px;
   }
 
-  .status-search-box {
-    flex-direction: column;
-  }
-
-  .status-search-box button {
-    width: 100%;
-  }
+  /* BOOKING FORM */
 
   .booking-form {
     width: 95%;
+
     padding: 30px 20px;
   }
 
+  /* ADMIN */
+
   .admin-dashboard {
     width: 95%;
+
     padding: 30px 20px;
   }
+
+  /* STATISTICS */
 
   .dashboard-stats {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* SEARCH */
+
   .admin-tools {
     grid-template-columns: 1fr;
   }
 
+  /* ADMIN ACTIONS */
+
   .admin-top-actions {
     flex-direction: column;
   }
+
+  /* BOOKING ACTIONS */
 
   .booking-actions {
     flex-direction: column;
@@ -1583,8 +837,62 @@ button:hover {
     width: 100%;
   }
 
+  /* BOOKING HEADER */
+
   .booking-header {
     flex-direction: column;
+
     align-items: flex-start;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  nav {
+    height: 65px;
+  }
+
+  nav h2 {
+    font-size: 17px;
+  }
+
+  nav button {
+    padding: 8px 11px;
+
+    font-size: 12px;
+  }
+
+  #home h1 {
+    font-size: 32px;
+  }
+
+  #home p {
+    font-size: 16px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr 1fr;
+
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 14px 5px;
+  }
+
+  .stat-card h3 {
+    font-size: 24px;
+  }
+
+  .admin-dashboard {
+    padding: 25px 15px;
+  }
+
+  .booking-form {
+    padding: 30px 15px;
   }
 }

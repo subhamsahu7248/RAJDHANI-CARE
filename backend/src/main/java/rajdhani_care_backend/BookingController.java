@@ -1,5 +1,8 @@
 package rajdhani_care_backend;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,31 +11,31 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/bookings")
 @CrossOrigin(
-        origins = {
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "http://localhost:5175",
-                "http://localhost:5176",
-                "http://localhost:5177",
-                "http://localhost:5178",
-                "http://localhost:5179"
-        },
-        methods = {
-                RequestMethod.GET,
-                RequestMethod.POST,
-                RequestMethod.PUT,
-                RequestMethod.DELETE,
-                RequestMethod.OPTIONS
-        },
-        allowedHeaders = "*"
+    origins = {
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:5177",
+        "http://localhost:5178",
+        "http://localhost:5179",
+        "http://localhost:5180",
+        "http://localhost:5181",
+        "http://localhost:5182",
+        "http://localhost:5183",
+        "http://localhost:5184",
+        "http://localhost:5185",
+        "http://localhost:5186",
+        "http://localhost:5187",
+        "http://localhost:5188",
+        "http://localhost:5189",
+        "http://localhost:5190"
+    }
 )
 public class BookingController {
 
@@ -43,15 +46,13 @@ public class BookingController {
     }
 
     // =========================
-    // CREATE NEW BOOKING
+    // CREATE BOOKING
     // =========================
 
     @PostMapping
     public Booking createBooking(@RequestBody Booking booking) {
 
-        if (booking.getStatus() == null ||
-                booking.getStatus().isEmpty()) {
-
+        if (booking.getStatus() == null || booking.getStatus().isEmpty()) {
             booking.setStatus("PENDING");
         }
 
@@ -64,36 +65,34 @@ public class BookingController {
 
     @GetMapping
     public List<Booking> getAllBookings() {
-
         return bookingRepository.findAll();
     }
 
     // =========================
-    // GET BOOKINGS BY PHONE
+    // GET BOOKING BY ID
     // =========================
 
-    @GetMapping("/phone/{phone}")
-    public List<Booking> getBookingsByPhone(
-            @PathVariable String phone) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Booking> getBookingById(
+            @PathVariable Long id) {
 
-        return bookingRepository.findByPhone(phone);
+        return bookingRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // =========================
-    // GET BOOKING BY ID + PHONE
+    // CHECK BOOKING BY ID + PHONE
     // =========================
 
     @GetMapping("/{id}/phone/{phone}")
-    public Booking getBookingByIdAndPhone(
+    public ResponseEntity<Booking> getBookingByIdAndPhone(
             @PathVariable Long id,
             @PathVariable String phone) {
 
-        return bookingRepository
-                .findByIdAndPhone(id, phone)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Booking not found"
-                        ));
+        return bookingRepository.findByIdAndPhone(id, phone)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // =========================
@@ -101,20 +100,21 @@ public class BookingController {
     // =========================
 
     @PutMapping("/{id}/status")
-    public Booking updateStatus(
+    public ResponseEntity<Booking> updateBookingStatus(
             @PathVariable Long id,
             @RequestBody StatusRequest request) {
 
-        Booking booking = bookingRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Booking not found"
-                        ));
+        return bookingRepository.findById(id)
+                .map(booking -> {
 
-        booking.setStatus(request.getStatus());
+                    booking.setStatus(request.getStatus());
 
-        return bookingRepository.save(booking);
+                    Booking updatedBooking =
+                            bookingRepository.save(booking);
+
+                    return ResponseEntity.ok(updatedBooking);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // =========================
@@ -122,31 +122,25 @@ public class BookingController {
     // =========================
 
     @DeleteMapping("/{id}")
-    public String deleteBooking(
+    public ResponseEntity<Void> deleteBooking(
             @PathVariable Long id) {
 
         if (!bookingRepository.existsById(id)) {
-
-            throw new RuntimeException(
-                    "Booking not found"
-            );
+            return ResponseEntity.notFound().build();
         }
 
         bookingRepository.deleteById(id);
 
-        return "Booking deleted successfully";
+        return ResponseEntity.noContent().build();
     }
 
     // =========================
-    // STATUS REQUEST
+    // STATUS REQUEST CLASS
     // =========================
 
     public static class StatusRequest {
 
         private String status;
-
-        public StatusRequest() {
-        }
 
         public String getStatus() {
             return status;
