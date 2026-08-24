@@ -1,6 +1,11 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 
+// =========================
+// LIVE BACKEND URL
+// =========================
+const API_BASE_URL = "https://rajdhani-care.onrender.com";
+
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -41,7 +46,7 @@ function App() {
   const loadBookings = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/api/bookings"
+        `${API_BASE_URL}/api/bookings`
       );
 
       if (!response.ok) {
@@ -53,6 +58,7 @@ function App() {
       setBookings(data);
     } catch (error) {
       console.error("Loading Error:", error);
+      alert("Could not load bookings.");
     }
   };
 
@@ -81,7 +87,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "http://localhost:8080/api/bookings",
+        `${API_BASE_URL}/api/bookings`,
         {
           method: "POST",
           headers: {
@@ -133,7 +139,7 @@ function App() {
       const phoneNumber = statusCheck.phone.trim();
 
       const url =
-        `http://localhost:8080/api/bookings/` +
+        `${API_BASE_URL}/api/bookings/` +
         `${bookingId}/phone/${phoneNumber}`;
 
       console.log("Checking booking:", url);
@@ -153,7 +159,6 @@ function App() {
       console.log("Booking found:", data);
 
       setCheckedBooking(data);
-
     } catch (error) {
       console.error("Status Check Error:", error);
 
@@ -172,7 +177,7 @@ function App() {
   const updateBookingStatus = async (id, status) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/bookings/${id}/status`,
+        `${API_BASE_URL}/api/bookings/${id}/status`,
         {
           method: "PUT",
           headers: {
@@ -213,7 +218,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/bookings/${id}`,
+        `${API_BASE_URL}/api/bookings/${id}`,
         {
           method: "DELETE",
         }
@@ -542,7 +547,6 @@ function App() {
                 })
               }
             >
-
               <option value="">
                 Select a Service
               </option>
@@ -566,7 +570,6 @@ function App() {
               <option value="Elderly Care">
                 Elderly Care
               </option>
-
             </select>
 
             <input
@@ -833,7 +836,6 @@ function App() {
                   setStatusFilter(e.target.value)
                 }
               >
-
                 <option value="ALL">
                   All Status
                 </option>
@@ -853,7 +855,6 @@ function App() {
                 <option value="CANCELLED">
                   Cancelled
                 </option>
-
               </select>
 
             </div>
