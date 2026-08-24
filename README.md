@@ -1,69 +1,52 @@
 # 🏥 Rajdhani Care
 
-A full-stack healthcare appointment booking and management system built using React and Spring Boot.
+A full-stack healthcare appointment booking web application that allows patients to book and verify appointments while providing an admin interface to manage bookings.
 
-## 📌 Overview
-
-Rajdhani Care is a modern healthcare appointment management application that allows patients to book appointments and administrators to manage bookings through an admin dashboard.
-
-The project is designed as a full-stack application with a React frontend, Spring Boot backend, and H2 database.
-
-## ✨ Features
+## 🚀 Features
 
 ### 👤 Patient Features
-
 - Book healthcare appointments
-- Enter patient information
-- Select service
+- Enter patient name, phone number and address
+- Select required healthcare service
 - Select appointment date and time
-- Track booking status
-- Verify booking using booking ID and phone number
-- View booking details
-- Responsive user interface
+- Verify existing bookings
+- View booking status
+- User-friendly responsive interface
 
-### 🔐 Admin Features
-
+### 🛠️ Admin Features
 - Admin login
-- Admin dashboard
 - View all bookings
-- View booking details
 - Update booking status
-- Confirm bookings
-- Cancel/update booking status
+- Edit booking details
 - Delete bookings
-- Changes are reflected in the frontend
+- Manage appointments from a centralized dashboard
+- Changes are reflected in the patient interface
 
-## 🛠️ Technology Stack
+## 💻 Tech Stack
 
 ### Frontend
-
-- React
+- React.js
 - JavaScript
 - HTML5
 - CSS3
 - Vite
 
 ### Backend
-
 - Java
 - Spring Boot
 - Spring Data JPA
 - Hibernate
-- REST API
+- Maven
 
 ### Database
-
 - H2 Database
 
 ### Development Tools
-
 - Visual Studio Code
 - Git
 - GitHub
-- Maven
-- npm
 
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```text
 RAJDHANI-CARE/
@@ -83,7 +66,9 @@ RAJDHANI-CARE/
 │   │   │
 │   │   └── test/
 │   │
-│   └── pom.xml
+│   ├── pom.xml
+│   ├── mvnw
+│   └── mvnw.cmd
 │
 ├── frontend/
 │   ├── public/
@@ -95,6 +80,7 @@ RAJDHANI-CARE/
 │   │   └── main.jsx
 │   │
 │   ├── package.json
+│   ├── package-lock.json
 │   └── vite.config.js
 │
 ├── .gitignore
