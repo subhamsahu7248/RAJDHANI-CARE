@@ -1,42 +1,28 @@
 package rajdhani_care_backend;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class CorsConfig {
+public class CorsConfig implements WebMvcConfigurer {
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
 
-        return new WebMvcConfigurer() {
-
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-
-                registry.addMapping("/**")
-                        .allowedOrigins(
-                                "http://localhost:5173",
-                                "http://localhost:5174",
-                                "http://localhost:5175",
-                                "http://localhost:5176",
-                                "http://localhost:5177",
-                                "http://localhost:5178",
-                                "http://localhost:5179",
-                                "http://localhost:5180",
-                                "http://localhost:5181"
-                        )
-                        .allowedMethods(
-                                "GET",
-                                "POST",
-                                "PUT",
-                                "DELETE",
-                                "OPTIONS"
-                        )
-                        .allowedHeaders("*");
-            }
-        };
+        registry.addMapping("/**")
+                .allowedOrigins(
+                        "http://localhost:5173",
+                        "http://localhost:5184",
+                        "https://rajdhani-care-2.onrender.com"
+                )
+                .allowedMethods(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "OPTIONS"
+                )
+                .allowedHeaders("*");
     }
 }
