@@ -34,8 +34,17 @@ import org.springframework.web.bind.annotation.RestController;
         "http://localhost:5187",
         "http://localhost:5188",
         "http://localhost:5189",
-        "http://localhost:5190"
-    }
+        "http://localhost:5190",
+        "https://rajdhani-care-2.onrender.com"
+    },
+    methods = {
+        org.springframework.web.bind.annotation.RequestMethod.GET,
+        org.springframework.web.bind.annotation.RequestMethod.POST,
+        org.springframework.web.bind.annotation.RequestMethod.PUT,
+        org.springframework.web.bind.annotation.RequestMethod.DELETE,
+        org.springframework.web.bind.annotation.RequestMethod.OPTIONS
+    },
+    allowedHeaders = "*"
 )
 public class BookingController {
 
