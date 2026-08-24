@@ -20,7 +20,17 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:5178",
                         "http://localhost:5179",
                         "http://localhost:5180",
-                        "http://localhost:5181"
+                        "http://localhost:5181",
+                        "http://localhost:5182",
+                        "http://localhost:5183",
+                        "http://localhost:5184",
+                        "http://localhost:5185",
+                        "http://localhost:5186",
+                        "http://localhost:5187",
+                        "http://localhost:5188",
+                        "http://localhost:5189",
+                        "http://localhost:5190",
+                        "https://rajdhani-care-2.onrender.com"
                 )
                 .allowedMethods(
                         "GET",
