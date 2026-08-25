@@ -1,65 +1,24 @@
 import "./App.css";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
-const API_BASE_URL = "https://rajdhani-care.onrender.com";
-
-const ADMIN_USERNAME = "rajdhanicare";
-const ADMIN_PASSWORD = "YOUR_CURRENT_ADMIN_PASSWORD";
-
-const services = [
-  {
-    icon: "💄",
-    title: "Beauty & Makeup",
-    description: "Professional beauty services at your doorstep.",
-  },
-  {
-    icon: "🧹",
-    title: "Home Cleaning",
-    description: "Keep your home clean, fresh and comfortable.",
-  },
-  {
-    icon: "🍱",
-    title: "Cooking & Tiffin",
-    description: "Fresh, convenient food support for your family.",
-  },
-  {
-    icon: "👶",
-    title: "Baby Care",
-    description: "Trusted care and support for your little ones.",
-  },
-  {
-    icon: "👵",
-    title: "Elderly Assistance",
-    description: "Friendly assistance for elderly family members.",
-  },
-];
-
-function ModalHeader({ eyebrow, title, description, onClose }) {
-  return (
-    <div className="modal-header">
-      <button
-        type="button"
-        className="close-btn modal-close"
-        aria-label="Close"
-        onClick={onClose}
-      >
-        ✕
-      </button>
-
-      <p className="modal-eyebrow">{eyebrow}</p>
-      <h2>{title}</h2>
-      <p className="modal-description">{description}</p>
-    </div>
-  );
-}
+const API_URL = "http://localhost:8080/api/bookings";
 
 function App() {
+  // =========================================
+  // UI STATES
+  // =========================================
+
   const [showForm, setShowForm] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [showStatus, setShowStatus] = useState(false);
+
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // =========================================
+  // BOOKING DATA
+  // =========================================
 
   const [booking, setBooking] = useState({
     name: "",
@@ -72,64 +31,119 @@ function App() {
 
   const [bookings, setBookings] = useState([]);
 
-  const [adminLogin, setAdminLogin] = useState({
+  // =========================================
+  // ADMIN LOGIN
+  // =========================================
+
+  const [loginData, setLoginData] = useState({
     username: "",
     password: "",
   });
 
-  const [statusCheck, setStatusCheck] = useState({
+  // =========================================
+  // CUSTOMER STATUS CHECK
+  // =========================================
+
+  const [statusData, setStatusData] = useState({
     id: "",
     phone: "",
   });
 
-  const [checkedBooking, setCheckedBooking] = useState(null);
+  const [searchedBooking, setSearchedBooking] = useState(null);
+  const [statusLoading, setStatusLoading] = useState(false);
+
+  // =========================================
+  // ADMIN SEARCH / FILTER
+  // =========================================
+
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const minimumBookingDate = new Date().toISOString().split("T")[0];
+  const [refreshing, setRefreshing] = useState(false);
+
+  // =========================================
+  // LOAD BOOKINGS
+  // =========================================
 
   const loadBookings = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/bookings`);
+      setRefreshing(true);
+
+      const response = await fetch(API_URL);
 
       if (!response.ok) {
-        throw new Error("Failed to load bookings");
+        throw new Error("Failed to fetch bookings");
       }
 
       const data = await response.json();
+
       setBookings(data);
     } catch (error) {
-      console.error("Loading Error:", error);
-      alert("Could not load bookings.");
+      console.error("Booking fetch error:", error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    if (isAdminLoggedIn && showAdmin) {
-      loadBookings();
-    }
-  }, [isAdminLoggedIn, showAdmin]);
+    loadBookings();
+  }, []);
 
-  const handleBooking = async () => {
-    if (
-      !booking.name ||
-      !booking.phone ||
-      !booking.address ||
-      !booking.service ||
-      !booking.date ||
-      !booking.time
-    ) {
-      alert("Please fill all booking details.");
-      return;
-    }
+  // =========================================
+  // OPEN BOOKING
+  // =========================================
+
+  const openBooking = () => {
+    setShowForm(true);
+    setShowLogin(false);
+    setShowAdmin(false);
+    setShowStatus(false);
+    setMenuOpen(false);
+  };
+
+  // =========================================
+  // OPEN STATUS
+  // =========================================
+
+  const openStatus = () => {
+    setShowStatus(true);
+    setShowForm(false);
+    setShowLogin(false);
+    setShowAdmin(false);
+    setMenuOpen(false);
+    setSearchedBooking(null);
+  };
+
+  // =========================================
+  // INPUT CHANGE
+  // =========================================
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setBooking((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  // =========================================
+  // CREATE BOOKING
+  // =========================================
+
+  const handleBooking = async (event) => {
+    event.preventDefault();
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/bookings`, {
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(booking),
+        body: JSON.stringify({
+          ...booking,
+          status: "PENDING",
+        }),
       });
 
       if (!response.ok) {
@@ -138,8 +152,13 @@ function App() {
 
       const savedBooking = await response.json();
 
+      setBookings((previous) => [
+        ...previous,
+        savedBooking,
+      ]);
+
       alert(
-        `Booking created successfully!\n\nYour Booking ID is: ${savedBooking.id}`
+        `Booking successful!\n\nYour Booking ID is: ${savedBooking.id}\n\nPlease save this ID to check your booking status.`
       );
 
       setBooking({
@@ -152,24 +171,40 @@ function App() {
       });
 
       setShowForm(false);
+
+      setStatusData({
+        id: savedBooking.id,
+        phone: savedBooking.phone,
+      });
     } catch (error) {
-      console.error("Booking Error:", error);
-      alert("Booking failed. Please try again.");
+      console.error("Booking error:", error);
+
+      alert(
+        "Booking failed. Please make sure the backend server is running."
+      );
     }
   };
 
-  const checkBookingStatus = async () => {
-    if (!statusCheck.id || !statusCheck.phone) {
+  // =========================================
+  // CUSTOMER CHECK STATUS
+  // =========================================
+
+  const handleStatusCheck = async (event) => {
+    event.preventDefault();
+
+    if (!statusData.id || !statusData.phone) {
       alert("Please enter Booking ID and Phone Number.");
       return;
     }
 
-    try {
-      const bookingId = statusCheck.id.trim();
-      const phoneNumber = statusCheck.phone.trim();
+    setStatusLoading(true);
+    setSearchedBooking(null);
 
+    try {
       const response = await fetch(
-        `${API_BASE_URL}/api/bookings/${bookingId}/phone/${phoneNumber}`
+        `${API_URL}/${statusData.id}/phone/${encodeURIComponent(
+          statusData.phone
+        )}`
       );
 
       if (!response.ok) {
@@ -177,24 +212,61 @@ function App() {
       }
 
       const data = await response.json();
-      setCheckedBooking(data);
+
+      setSearchedBooking(data);
     } catch (error) {
-      console.error("Status Check Error:", error);
-      setCheckedBooking(null);
-      alert("Booking not found. Please check your Booking ID and Phone Number.");
+      console.error("Status error:", error);
+
+      alert(
+        "Booking not found. Please check your Booking ID and Phone Number."
+      );
+    } finally {
+      setStatusLoading(false);
     }
   };
+
+  // =========================================
+  // ADMIN LOGIN
+  // =========================================
+
+  const handleAdminLogin = (event) => {
+    event.preventDefault();
+
+    if (
+      loginData.username === "admin" &&
+      loginData.password === "admin123"
+    ) {
+      setIsAdminLoggedIn(true);
+      setShowLogin(false);
+      setShowAdmin(true);
+
+      setLoginData({
+        username: "",
+        password: "",
+      });
+
+      loadBookings();
+    } else {
+      alert("Invalid admin username or password.");
+    }
+  };
+
+  // =========================================
+  // UPDATE STATUS
+  // =========================================
 
   const updateBookingStatus = async (id, status) => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/bookings/${id}/status`,
+        `${API_URL}/${id}/status`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status }),
+          body: JSON.stringify({
+            status: status,
+          }),
         }
       );
 
@@ -202,1026 +274,1473 @@ function App() {
         throw new Error("Status update failed");
       }
 
-      await loadBookings();
-      alert(`Booking status changed to ${status}`);
+      const updatedBooking = await response.json();
+
+      setBookings((previous) =>
+        previous.map((item) =>
+          item.id === id ? updatedBooking : item
+        )
+      );
+
+      if (
+        searchedBooking &&
+        searchedBooking.id === id
+      ) {
+        setSearchedBooking(updatedBooking);
+      }
+
     } catch (error) {
-      console.error("Status Error:", error);
-      alert("Could not update booking status.");
+      console.error("Status update error:", error);
+
+      alert("Unable to update booking status.");
     }
   };
 
+  // =========================================
+  // DELETE BOOKING
+  // =========================================
+
   const deleteBooking = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this booking?")) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this booking?"
+    );
+
+    if (!confirmDelete) {
       return;
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/bookings/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${API_URL}/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Delete failed");
       }
 
-      await loadBookings();
+      setBookings((previous) =>
+        previous.filter((item) => item.id !== id)
+      );
+
       alert("Booking deleted successfully.");
     } catch (error) {
-      console.error("Delete Error:", error);
-      alert("Could not delete booking.");
+      console.error("Delete error:", error);
+
+      alert("Unable to delete booking.");
     }
   };
 
-  const handleAdminLogin = () => {
-    if (
-      adminLogin.username === ADMIN_USERNAME &&
-      adminLogin.password === ADMIN_PASSWORD
-    ) {
-      setIsAdminLoggedIn(true);
-      setShowLogin(false);
-      setShowAdmin(true);
-      setAdminLogin({ username: "", password: "" });
-      loadBookings();
-    } else {
-      alert("Invalid username or password!");
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAdminLoggedIn(false);
-    setShowAdmin(false);
-  };
+  // =========================================
+  // STATUS CLASS
+  // =========================================
 
   const getStatusClass = (status) => {
-    if (status === "CONFIRMED") return "status-confirmed";
-    if (status === "CANCELLED") return "status-cancelled";
-    if (status === "COMPLETED") return "status-completed";
-    return "status-pending";
+    switch (status) {
+      case "CONFIRMED":
+        return "status-confirmed";
+
+      case "CANCELLED":
+        return "status-cancelled";
+
+      case "COMPLETED":
+        return "status-completed";
+
+      default:
+        return "status-pending";
+    }
   };
 
-  const openSelectedService = (serviceName) => {
-    setBooking({
-      ...booking,
-      service: serviceName,
-    });
+  // =========================================
+  // NORMALIZE STATUS
+  // =========================================
 
-    setShowForm(true);
+  const getBookingStatus = (item) => {
+    return item.status || "PENDING";
   };
+
+  // =========================================
+  // DASHBOARD STATISTICS
+  // =========================================
 
   const totalBookings = bookings.length;
 
   const pendingBookings = bookings.filter(
-    (item) => !item.status || item.status === "PENDING"
+    (item) =>
+      getBookingStatus(item) === "PENDING"
   ).length;
 
   const confirmedBookings = bookings.filter(
-    (item) => item.status === "CONFIRMED"
+    (item) =>
+      getBookingStatus(item) === "CONFIRMED"
   ).length;
 
   const completedBookings = bookings.filter(
-    (item) => item.status === "COMPLETED"
+    (item) =>
+      getBookingStatus(item) === "COMPLETED"
   ).length;
 
   const cancelledBookings = bookings.filter(
-    (item) => item.status === "CANCELLED"
+    (item) =>
+      getBookingStatus(item) === "CANCELLED"
   ).length;
 
-  const filteredBookings = bookings.filter((item) => {
-    const search = searchText.toLowerCase();
+  // =========================================
+  // SEARCH + FILTER
+  // =========================================
 
-    const matchesSearch =
-      item.name?.toLowerCase().includes(search) ||
-      item.phone?.toLowerCase().includes(search) ||
-      item.service?.toLowerCase().includes(search);
+  const filteredBookings = bookings.filter(
+    (item) => {
+      const search = searchText
+        .toLowerCase()
+        .trim();
 
-    const currentStatus = item.status || "PENDING";
+      const matchesSearch =
+        search === "" ||
+        String(item.id)
+          .toLowerCase()
+          .includes(search) ||
+        (item.name || "")
+          .toLowerCase()
+          .includes(search) ||
+        (item.phone || "")
+          .toLowerCase()
+          .includes(search) ||
+        (item.service || "")
+          .toLowerCase()
+          .includes(search);
 
-    return (
-      matchesSearch &&
-      (statusFilter === "ALL" || currentStatus === statusFilter)
-    );
-  });
+      const matchesStatus =
+        statusFilter === "ALL" ||
+        getBookingStatus(item) === statusFilter;
+
+      return (
+        matchesSearch &&
+        matchesStatus
+      );
+    }
+  );
 
   return (
-    <div>
-      <nav className="site-navbar">
+    <div className="app">
+
+      {/* =========================================
+          NAVBAR
+      ========================================= */}
+
+      <header className="navbar">
+
         <div className="nav-container">
-          <a
-            className="brand"
-            href="#home"
-            onClick={() => setIsMenuOpen(false)}
-          >
+
+          {/* BRAND */}
+
+          <div className="brand">
+
             <img
               src="/images/rajdhani-care-logo.jpeg"
-              alt="Rajdhani Care logo"
-              className="brand-logo"
+              alt="Rajdhani Care"
+              className="nav-logo"
             />
 
-            <span className="brand-text">
-              <strong>Rajdhani</strong>
-              <small>CARE AT YOUR DOORSTEP</small>
-            </span>
-          </a>
+            <div className="brand-text">
+              <span>RAJDHANI</span>
+              <small>CARE</small>
+            </div>
 
-          <button
-            type="button"
-            className="nav-menu-button"
-            aria-label="Open navigation menu"
-            aria-expanded={isMenuOpen}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          </div>
+
+          {/* NAV LINKS */}
+
+          <nav
+            className={`nav-links ${
+              menuOpen ? "mobile-open" : ""
+            }`}
           >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
 
-          <div className={`nav-links ${isMenuOpen ? "is-open" : ""}`}>
-            <a href="#home" onClick={() => setIsMenuOpen(false)}>
+            <a
+              href="#home"
+              onClick={() => setMenuOpen(false)}
+            >
               Home
             </a>
 
-            <a href="#services" onClick={() => setIsMenuOpen(false)}>
+            <a
+              href="#services"
+              onClick={() => setMenuOpen(false)}
+            >
               Services
             </a>
 
-            <a href="#about" onClick={() => setIsMenuOpen(false)}>
-              Why Choose Us
+            <a
+              href="#about"
+              onClick={() => setMenuOpen(false)}
+            >
+              About
             </a>
 
-            <a href="#contact" onClick={() => setIsMenuOpen(false)}>
+            <a
+              href="#contact"
+              onClick={() => setMenuOpen(false)}
+            >
               Contact
             </a>
 
+          </nav>
+
+          {/* NAV ACTIONS */}
+
+          <div className="nav-actions">
+
             <button
-              type="button"
-              className="nav-check-button"
-              onClick={() => {
-                setShowStatus(true);
-                setIsMenuOpen(false);
-              }}
+              className="nav-status-button"
+              onClick={openStatus}
             >
-              Check Booking
+              Check Status
             </button>
 
             <button
-              type="button"
-              className="nav-book-button"
-              onClick={() => {
-                setShowForm(true);
-                setIsMenuOpen(false);
-              }}
+              className="nav-button"
+              onClick={openBooking}
             >
-              Book a Service
+              Book Service
+              <span>→</span>
             </button>
 
-            {!isAdminLoggedIn ? (
-              <button
-                type="button"
-                className="nav-admin-button"
-                onClick={() => {
-                  setShowLogin(true);
-                  setIsMenuOpen(false);
-                }}
-              >
-                Admin
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="nav-admin-button"
-                onClick={() => {
-                  setShowAdmin(true);
-                  setIsMenuOpen(false);
-                }}
-              >
-                Dashboard
-              </button>
-            )}
           </div>
+
+          {/* MOBILE MENU */}
+
+          <button
+            className={`mobile-menu-button ${
+              menuOpen ? "active" : ""
+            }`}
+            onClick={() =>
+              setMenuOpen(!menuOpen)
+            }
+            aria-label="Toggle menu"
+          >
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+          </button>
+
         </div>
-      </nav>
 
-      <section id="home" className="hero-section">
-        <div className="hero-inner">
-          <div className="hero-copy">
-            <p className="hero-eyebrow">
-              <span>✦</span> Trusted home services in Bhubaneswar
-            </p>
+      </header>
 
-            <h1 className="hero-title">
+
+      {/* =========================================
+          HERO
+      ========================================= */}
+
+      <section
+        id="home"
+        className="hero-section"
+      >
+
+        <div className="hero-content">
+
+          <div className="hero-text">
+
+            <div className="hero-badge">
+              Trusted Home Care Services
+            </div>
+
+            <h1>
               Your Home Care,
-              <span>Now At Your Doorstep.</span>
+              <br />
+              <span>
+                Now At Your Doorstep.
+              </span>
             </h1>
 
-            <p className="hero-description">
-              From everyday home support to specialised care, Rajdhani Care
-              connects your family with trusted professionals—right where you
-              need them most.
+            <p>
+              Reliable and compassionate home
+              care services designed to make
+              everyday life easier, safer and
+              more comfortable.
             </p>
 
             <div className="hero-actions">
+
               <button
-                type="button"
-                className="hero-primary-button"
-                onClick={() => setShowForm(true)}
+                className="primary-button"
+                onClick={openBooking}
               >
-                Book a Service <span>→</span>
+                Book a Service
+                <span>→</span>
               </button>
 
               <button
-                type="button"
-                className="hero-secondary-button"
-                onClick={() => setShowStatus(true)}
+                className="secondary-button"
+                onClick={openStatus}
               >
                 Check Booking Status
               </button>
+
             </div>
 
-            <div className="hero-trust-list">
-              <div>
-                <span>✓</span>
-                Trusted professionals
-              </div>
-
-              <div>
-                <span>✓</span>
-                Easy service booking
-              </div>
-
-              <div>
-                <span>✓</span>
-                Care for every family
-              </div>
-            </div>
           </div>
 
           <div className="hero-visual">
-            <div className="hero-image-panel">
-              <img
-                src="/images/caregiver.jpeg"
-                alt="Rajdhani Care professional at your doorstep"
-              />
 
-              <div className="hero-service-card">
-                <span className="service-card-icon">♥</span>
+            <div className="hero-card">
 
-                <div>
-                  <strong>Care at your doorstep</strong>
-                  <small>Comfort, support and trust</small>
-                </div>
+              <div className="hero-card-icon">
+                ❤️
               </div>
 
-              <div className="hero-location-card">
-                <span>📍</span>
+              <h3>
+                Care You Can Trust
+              </h3>
 
-                <div>
-                  <strong>Bhubaneswar, Odisha</strong>
-                  <small>Serving your daily needs</small>
-                </div>
-              </div>
+              <p>
+                Professional service with
+                genuine care.
+              </p>
+
             </div>
+
           </div>
+
         </div>
+
       </section>
 
-      <section id="services" className="services-section">
-        <div className="services-heading">
-          <p className="section-eyebrow">OUR SERVICES</p>
 
-          <h2>Everyday Care for Your Home & Family</h2>
+      {/* =========================================
+          SERVICES
+      ========================================= */}
+
+      <section
+        id="services"
+        className="services-section"
+      >
+
+        <div className="section-heading">
+
+          <span className="section-label">
+            OUR SERVICES
+          </span>
+
+          <h2>
+            Everything You Need,
+            <br />
+            <span>
+              Under One Roof.
+            </span>
+          </h2>
 
           <p>
-            Choose the support you need and book a trusted Rajdhani Care
-            professional at your convenience.
+            Simple, dependable and professional
+            services for your everyday needs.
           </p>
+
         </div>
 
         <div className="services-grid">
-          {services.map((service, index) => (
-            <article
-              className={`service-card service-card-${index + 1}`}
-              key={service.title}
-            >
-              <span className="service-number">0{index + 1}</span>
 
-              <div className="service-icon">{service.icon}</div>
+          <div className="service-card">
 
-              <h3>{service.title}</h3>
+            <div className="service-icon">
+              🏠
+            </div>
 
-              <p>{service.description}</p>
+            <h3>
+              Home Cleaning
+            </h3>
 
-              <button
-                type="button"
-                className="service-book-button"
-                onClick={() => openSelectedService(service.title)}
-              >
-                Book this service <span>→</span>
-              </button>
-            </article>
-          ))}
+            <p>
+              Professional home cleaning
+              services for a fresh and
+              healthy living space.
+            </p>
+
+            <button onClick={openBooking}>
+              Book Now →
+            </button>
+
+          </div>
+
+
+          <div className="service-card">
+
+            <div className="service-icon">
+              👵
+            </div>
+
+            <h3>
+              Elder Care
+            </h3>
+
+            <p>
+              Caring and dependable assistance
+              for elderly family members at home.
+            </p>
+
+            <button onClick={openBooking}>
+              Book Now →
+            </button>
+
+          </div>
+
+
+          <div className="service-card">
+
+            <div className="service-icon">
+              🔧
+            </div>
+
+            <h3>
+              Home Maintenance
+            </h3>
+
+            <p>
+              Reliable maintenance and support
+              services whenever you need them.
+            </p>
+
+            <button onClick={openBooking}>
+              Book Now →
+            </button>
+
+          </div>
+
+
+          <div className="service-card">
+
+            <div className="service-icon">
+              🧹
+            </div>
+
+            <h3>
+              Daily Assistance
+            </h3>
+
+            <p>
+              Convenient everyday assistance
+              designed around your needs.
+            </p>
+
+            <button onClick={openBooking}>
+              Book Now →
+            </button>
+
+          </div>
+
         </div>
 
-        <div className="services-bottom">
+      </section>
+
+
+      {/* =========================================
+          ABOUT
+      ========================================= */}
+
+      <section
+        id="about"
+        className="about-section"
+      >
+
+        <div className="about-content">
+
+          <div className="about-image">
+
+            <div className="about-image-card">
+              Rajdhani
+              <br />
+              Care
+            </div>
+
+          </div>
+
+          <div className="about-text">
+
+            <span className="section-label">
+              ABOUT RAJDHANI CARE
+            </span>
+
+            <h2>
+              We Believe
+              <br />
+              <span>
+                Care Comes First.
+              </span>
+            </h2>
+
+            <p>
+              Rajdhani Care is built around
+              a simple idea — providing
+              dependable services that
+              people can trust.
+            </p>
+
+            <p>
+              Our goal is to make professional
+              home services accessible,
+              convenient and stress-free
+              for every family.
+            </p>
+
+            <div className="about-points">
+
+              <div>
+                <strong>✓</strong>
+                Trusted Professionals
+              </div>
+
+              <div>
+                <strong>✓</strong>
+                Reliable Service
+              </div>
+
+              <div>
+                <strong>✓</strong>
+                Customer First
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* =========================================
+          CONTACT / CTA
+      ========================================= */}
+
+      <section
+        id="contact"
+        className="cta-section"
+      >
+
+        <div className="cta-content">
+
           <div>
-            <span>✦</span>
-            Need help choosing the right service?
+
+            <span className="section-label">
+              NEED HELP?
+            </span>
+
+            <h2>
+              Let Us Take Care
+              <br />
+              <span>
+                Of The Rest.
+              </span>
+            </h2>
+
+            <p>
+              Book a service today and
+              experience simple, reliable
+              home care.
+            </p>
+
           </div>
 
-          <button type="button" onClick={() => setShowForm(true)}>
+          <button
+            className="cta-button"
+            onClick={openBooking}
+          >
             Book a Service
+            <span>→</span>
           </button>
+
         </div>
+
       </section>
 
-      <section id="about" className="why-section">
-        <div className="why-container">
-          <div className="why-visual">
-            <div className="why-main-card">
-              <span className="why-heart">♥</span>
 
-              <p>Rajdhani Care</p>
+      {/* =========================================
+          FOOTER
+      ========================================= */}
 
-              <h3>Care Beyond a Service</h3>
+      <footer className="premium-footer">
 
-              <div>
-                <span>✓</span>
-                Trusted support for every home
-              </div>
-            </div>
+        <div className="footer-container">
 
-            <div className="why-small-card services-count-card">
-              <strong>5</strong>
-              <span>Essential home services</span>
-            </div>
-
-            <div className="why-small-card location-count-card">
-              <span>📍</span>
-
-              <div>
-                <strong>Bhubaneswar</strong>
-                <small>Odisha</small>
-              </div>
-            </div>
-          </div>
-
-          <div className="why-content">
-            <p className="section-eyebrow">WHY CHOOSE US</p>
-
-            <h2>
-              More Than a Service,
-              <span>A New Trust of Care.</span>
-            </h2>
-
-            <p className="why-description">
-              Rajdhani Care makes everyday life easier by bringing reliable,
-              family-focused services directly to your home.
-            </p>
-
-            <div className="why-points">
-              <div className="why-point">
-                <span>01</span>
-
-                <div>
-                  <h3>Professional & Trusted</h3>
-                  <p>
-                    We focus on dependable support and respectful service for
-                    every family.
-                  </p>
-                </div>
-              </div>
-
-              <div className="why-point">
-                <span>02</span>
-
-                <div>
-                  <h3>Easy Booking Process</h3>
-                  <p>
-                    Select a service, choose a convenient time and track your
-                    booking status.
-                  </p>
-                </div>
-              </div>
-
-              <div className="why-point">
-                <span>03</span>
-
-                <div>
-                  <h3>Care Made for Home</h3>
-                  <p>
-                    From baby care to elderly assistance, support is available
-                    where it matters most.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="why-book-button"
-              onClick={() => setShowForm(true)}
-            >
-              Book a Service <span>→</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" className="booking-cta">
-        <div className="cta-inner">
-          <div className="cta-content">
-            <p className="cta-eyebrow">READY WHEN YOU ARE</p>
-
-            <h2>
-              A Little Help Can Make
-              <span>A Big Difference.</span>
-            </h2>
-
-            <p>
-              Book a service in a few simple steps and let Rajdhani Care bring
-              dependable support to your home.
-            </p>
-
-            <div className="cta-location">
-              <span>📍</span>
-              Currently serving families in Bhubaneswar, Odisha
-            </div>
-          </div>
-
-          <div className="cta-card">
-            <div className="cta-card-icon">♥</div>
-
-            <h3>Book your care today</h3>
-
-            <p>
-              Select your service, preferred date and time. We will take care
-              of the rest.
-            </p>
-
-            <button
-              type="button"
-              className="cta-primary-button"
-              onClick={() => setShowForm(true)}
-            >
-              Book a Service <span>→</span>
-            </button>
-
-            <button
-              type="button"
-              className="cta-status-button"
-              onClick={() => setShowStatus(true)}
-            >
-              Check Booking Status
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <footer className="site-footer">
-        <div className="footer-main">
           <div className="footer-brand">
-            <div className="footer-logo-row">
+
+            <div className="footer-brand-top">
+
               <img
                 src="/images/rajdhani-care-logo.jpeg"
-                alt="Rajdhani Care logo"
+                alt="Rajdhani Care"
+                className="footer-logo"
               />
 
-              <div>
-                <h3>Rajdhani Care</h3>
-                <span>CARE AT YOUR DOORSTEP</span>
+              <div className="footer-brand-text">
+
+                <span>
+                  RAJDHANI
+                </span>
+
+                <small>
+                  CARE
+                </small>
+
               </div>
+
             </div>
 
             <p>
-              Trusted, family-focused home services designed to make everyday
-              life easier.
+              Professional and reliable home
+              care services designed around you.
             </p>
 
-            <div className="footer-location">
-              <span>📍</span>
-              Bhubaneswar, Odisha
-            </div>
           </div>
+
 
           <div className="footer-column">
-            <h4>Quick Links</h4>
 
-            <a href="#home">Home</a>
-            <a href="#services">Our Services</a>
-            <a href="#about">Why Choose Us</a>
-            <a href="#contact">Book a Service</a>
+            <h3>
+              Quick Links
+            </h3>
+
+            <a href="#home">
+              Home
+            </a>
+
+            <a href="#services">
+              Services
+            </a>
+
+            <a href="#about">
+              About Us
+            </a>
+
+            <a href="#contact">
+              Contact
+            </a>
+
           </div>
+
 
           <div className="footer-column">
-            <h4>Our Services</h4>
 
-            {services.map((service) => (
-              <button
-                type="button"
-                className="footer-service-link"
-                key={service.title}
-                onClick={() => openSelectedService(service.title)}
-              >
-                {service.title}
-              </button>
-            ))}
+            <h3>
+              Services
+            </h3>
+
+            <a href="#services">
+              Home Cleaning
+            </a>
+
+            <a href="#services">
+              Elder Care
+            </a>
+
+            <a href="#services">
+              Home Maintenance
+            </a>
+
+            <a href="#services">
+              Daily Assistance
+            </a>
+
           </div>
 
-          <div className="footer-column footer-help-column">
-            <h4>Need Assistance?</h4>
+
+          <div className="footer-column footer-contact">
+
+            <h3>
+              Contact Us
+            </h3>
 
             <p>
-              Book a service online or use your Booking ID to check its
-              current status.
+              📍 Bhubaneswar, Odisha
+            </p>
+
+            <p>
+              ☎ +91 XXXXX XXXXX
+            </p>
+
+            <p>
+              ✉ hello@rajdhanicare.com
             </p>
 
             <button
-              type="button"
-              className="footer-check-button"
-              onClick={() => setShowStatus(true)}
+              onClick={openStatus}
+              className="footer-book-button"
             >
-              Check Booking
+              Check Booking Status →
             </button>
+
           </div>
+
         </div>
+
 
         <div className="footer-bottom">
-          <p>© 2026 Rajdhani Care. All Rights Reserved.</p>
 
-          <a href="#home">Back to top ↑</a>
+          <p>
+            © 2026 Rajdhani Care.
+            All rights reserved.
+          </p>
+
+          <div className="footer-bottom-links">
+
+            <button
+              onClick={() => setShowLogin(true)}
+              className="admin-footer-button"
+            >
+              Admin Login
+            </button>
+
+          </div>
+
         </div>
+
       </footer>
 
+
+      {/* =========================================
+          BOOKING MODAL
+      ========================================= */}
+
       {showForm && (
-        <div className="booking-overlay" role="dialog" aria-modal="true">
-          <div className="booking-form modern-booking-form">
-            <ModalHeader
-              eyebrow="SERVICE BOOKING"
-              title="Book a Service"
-              description="Fill in your details and choose a convenient time."
-              onClose={() => setShowForm(false)}
-            />
 
-            <div className="booking-service-preview">
-              <span>Selected service</span>
-              <strong>{booking.service || "Choose your service below"}</strong>
-            </div>
+        <div className="modal-overlay">
 
-            <div className="booking-fields">
-              <label className="form-field">
-                <span>Your full name</span>
+          <div className="booking-modal">
 
-                <input
-                  type="text"
-                  placeholder="Enter your name"
-                  value={booking.name}
-                  onChange={(e) =>
-                    setBooking({
-                      ...booking,
-                      name: e.target.value,
-                    })
-                  }
-                />
-              </label>
+            <button
+              className="modal-close"
+              onClick={() =>
+                setShowForm(false)
+              }
+            >
+              ×
+            </button>
 
-              <label className="form-field">
-                <span>Phone number</span>
+            <h2>
+              Book a Service
+            </h2>
 
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  placeholder="Enter your phone number"
-                  value={booking.phone}
-                  onChange={(e) =>
-                    setBooking({
-                      ...booking,
-                      phone: e.target.value,
-                    })
-                  }
-                />
-              </label>
-
-              <label className="form-field form-field-full">
-                <span>Service address</span>
-
-                <input
-                  type="text"
-                  placeholder="House number, area and landmark"
-                  value={booking.address}
-                  onChange={(e) =>
-                    setBooking({
-                      ...booking,
-                      address: e.target.value,
-                    })
-                  }
-                />
-              </label>
-
-              <label className="form-field form-field-full">
-                <span>Select service</span>
-
-                <select
-                  value={booking.service}
-                  onChange={(e) =>
-                    setBooking({
-                      ...booking,
-                      service: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Choose a service</option>
-
-                  {services.map((service) => (
-                    <option key={service.title} value={service.title}>
-                      {service.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="form-field">
-                <span>Preferred date</span>
-
-                <input
-                  type="date"
-                  min={minimumBookingDate}
-                  value={booking.date}
-                  onChange={(e) =>
-                    setBooking({
-                      ...booking,
-                      date: e.target.value,
-                    })
-                  }
-                />
-              </label>
-
-              <label className="form-field">
-                <span>Preferred time</span>
-
-                <input
-                  type="time"
-                  value={booking.time}
-                  onChange={(e) =>
-                    setBooking({
-                      ...booking,
-                      time: e.target.value,
-                    })
-                  }
-                />
-              </label>
-            </div>
-
-            <p className="booking-form-note">
-              ✦ Your booking details are used only to arrange your selected
-              service.
+            <p>
+              Fill in your details and we
+              will get back to you.
             </p>
 
-            <button
-              type="button"
-              className="booking-submit-button"
-              onClick={handleBooking}
-            >
-              Confirm Booking <span>→</span>
-            </button>
-          </div>
-        </div>
-      )}
+            <form onSubmit={handleBooking}>
 
-      {showStatus && (
-        <div className="booking-overlay" role="dialog" aria-modal="true">
-          <div className="booking-form modern-status-form">
-            <ModalHeader
-              eyebrow="BOOKING STATUS"
-              title="Track Your Service"
-              description="Enter your Booking ID and registered phone number."
-              onClose={() => {
-                setShowStatus(false);
-                setCheckedBooking(null);
-              }}
-            />
-
-            <div className="status-fields">
-              <label className="form-field">
-                <span>Booking ID</span>
-
-                <input
-                  type="number"
-                  placeholder="Example: 101"
-                  value={statusCheck.id}
-                  onChange={(e) =>
-                    setStatusCheck({
-                      ...statusCheck,
-                      id: e.target.value,
-                    })
-                  }
-                />
-              </label>
-
-              <label className="form-field">
-                <span>Phone number</span>
-
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  placeholder="Registered phone number"
-                  value={statusCheck.phone}
-                  onChange={(e) =>
-                    setStatusCheck({
-                      ...statusCheck,
-                      phone: e.target.value,
-                    })
-                  }
-                />
-              </label>
-            </div>
-
-            <button
-              type="button"
-              className="status-submit-button"
-              onClick={checkBookingStatus}
-            >
-              Check Booking Status
-            </button>
-
-            {checkedBooking && (
-              <div className="status-result-card">
-                <div className="status-result-top">
-                  <div>
-                    <span>Booking reference</span>
-                    <strong>#{checkedBooking.id}</strong>
-                  </div>
-
-                  <span
-                    className={`booking-status ${getStatusClass(
-                      checkedBooking.status || "PENDING"
-                    )}`}
-                  >
-                    {checkedBooking.status || "PENDING"}
-                  </span>
-                </div>
-
-                <div className="status-result-grid">
-                  <div>
-                    <span>Name</span>
-                    <strong>{checkedBooking.name}</strong>
-                  </div>
-
-                  <div>
-                    <span>Service</span>
-                    <strong>{checkedBooking.service}</strong>
-                  </div>
-
-                  <div>
-                    <span>Date</span>
-                    <strong>{checkedBooking.date}</strong>
-                  </div>
-
-                  <div>
-                    <span>Time</span>
-                    <strong>{checkedBooking.time}</strong>
-                  </div>
-
-                  <div className="status-address">
-                    <span>Service address</span>
-                    <strong>{checkedBooking.address}</strong>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {showLogin && (
-        <div className="booking-overlay" role="dialog" aria-modal="true">
-          <div className="booking-form admin-login-form">
-            <ModalHeader
-              eyebrow="ADMIN ACCESS"
-              title="Welcome Back"
-              description="Log in to manage Rajdhani Care bookings."
-              onClose={() => setShowLogin(false)}
-            />
-
-            <div className="admin-login-fields">
-              <label className="form-field">
-                <span>Username</span>
-
-                <input
-                  type="text"
-                  placeholder="Enter username"
-                  value={adminLogin.username}
-                  onChange={(e) =>
-                    setAdminLogin({
-                      ...adminLogin,
-                      username: e.target.value,
-                    })
-                  }
-                />
-              </label>
-
-              <label className="form-field">
-                <span>Password</span>
-
-                <input
-                  type="password"
-                  placeholder="Enter password"
-                  value={adminLogin.password}
-                  onChange={(e) =>
-                    setAdminLogin({
-                      ...adminLogin,
-                      password: e.target.value,
-                    })
-                  }
-                />
-              </label>
-            </div>
-
-            <button
-              type="button"
-              className="booking-submit-button"
-              onClick={handleAdminLogin}
-            >
-              Login to Dashboard
-            </button>
-          </div>
-        </div>
-      )}
-
-      {showAdmin && isAdminLoggedIn && (
-        <div className="booking-overlay" role="dialog" aria-modal="true">
-          <div className="admin-dashboard">
-            <button
-              type="button"
-              className="close-btn"
-              aria-label="Close dashboard"
-              onClick={() => setShowAdmin(false)}
-            >
-              ✕
-            </button>
-
-            <h2>🔐 Admin Dashboard</h2>
-
-            <p className="admin-subtitle">
-              Rajdhani Care Booking Management
-            </p>
-
-            <div className="dashboard-stats">
-              <div className="stat-card">
-                <h3>{totalBookings}</h3>
-                <p>📋 Total</p>
-              </div>
-
-              <div className="stat-card pending-stat">
-                <h3>{pendingBookings}</h3>
-                <p>🟡 Pending</p>
-              </div>
-
-              <div className="stat-card confirmed-stat">
-                <h3>{confirmedBookings}</h3>
-                <p>🟢 Confirmed</p>
-              </div>
-
-              <div className="stat-card completed-stat">
-                <h3>{completedBookings}</h3>
-                <p>🔵 Completed</p>
-              </div>
-
-              <div className="stat-card cancelled-stat">
-                <h3>{cancelledBookings}</h3>
-                <p>🔴 Cancelled</p>
-              </div>
-            </div>
-
-            <div className="admin-tools">
               <input
                 type="text"
-                placeholder="🔍 Search name, phone or service..."
+                name="name"
+                placeholder="Your Name"
+                value={booking.name}
+                onChange={handleChange}
+                required
+              />
+
+              <input
+                type="tel"
+                name="phone"
+                placeholder="Phone Number"
+                value={booking.phone}
+                onChange={handleChange}
+                required
+              />
+
+              <input
+                type="text"
+                name="address"
+                placeholder="Address"
+                value={booking.address}
+                onChange={handleChange}
+                required
+              />
+
+              <select
+                name="service"
+                value={booking.service}
+                onChange={handleChange}
+                required
+              >
+
+                <option value="">
+                  Select Service
+                </option>
+
+                <option value="Home Cleaning">
+                  Home Cleaning
+                </option>
+
+                <option value="Elder Care">
+                  Elder Care
+                </option>
+
+                <option value="Home Maintenance">
+                  Home Maintenance
+                </option>
+
+                <option value="Daily Assistance">
+                  Daily Assistance
+                </option>
+
+              </select>
+
+              <input
+                type="date"
+                name="date"
+                value={booking.date}
+                onChange={handleChange}
+                required
+              />
+
+              <input
+                type="time"
+                name="time"
+                value={booking.time}
+                onChange={handleChange}
+                required
+              />
+
+              <button
+                type="submit"
+                className="modal-submit"
+              >
+                Confirm Booking →
+              </button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* =========================================
+          STATUS MODAL
+      ========================================= */}
+
+      {showStatus && (
+
+        <div className="modal-overlay">
+
+          <div className="booking-modal status-modal">
+
+            <button
+              className="modal-close"
+              onClick={() => {
+                setShowStatus(false);
+                setSearchedBooking(null);
+              }}
+            >
+              ×
+            </button>
+
+            <h2>
+              Check Booking Status
+            </h2>
+
+            <p>
+              Enter your Booking ID and
+              phone number.
+            </p>
+
+            <form
+              onSubmit={handleStatusCheck}
+            >
+
+              <input
+                type="number"
+                placeholder="Booking ID"
+                value={statusData.id}
+                onChange={(event) =>
+                  setStatusData({
+                    ...statusData,
+                    id: event.target.value,
+                  })
+                }
+                required
+              />
+
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                value={statusData.phone}
+                onChange={(event) =>
+                  setStatusData({
+                    ...statusData,
+                    phone: event.target.value,
+                  })
+                }
+                required
+              />
+
+              <button
+                type="submit"
+                className="modal-submit"
+                disabled={statusLoading}
+              >
+                {statusLoading
+                  ? "Checking..."
+                  : "Check Status →"}
+              </button>
+
+            </form>
+
+
+            {searchedBooking && (
+
+              <div className="booking-status-result">
+
+                <div className="status-result-header">
+
+                  <span>
+                    Booking #
+                    {searchedBooking.id}
+                  </span>
+
+                  <span
+                    className={`status-badge ${getStatusClass(
+                      searchedBooking.status
+                    )}`}
+                  >
+                    {getBookingStatus(
+                      searchedBooking
+                    )}
+                  </span>
+
+                </div>
+
+                <div className="status-details">
+
+                  <p>
+                    <strong>Name:</strong>{" "}
+                    {searchedBooking.name}
+                  </p>
+
+                  <p>
+                    <strong>Service:</strong>{" "}
+                    {searchedBooking.service}
+                  </p>
+
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {searchedBooking.date}
+                  </p>
+
+                  <p>
+                    <strong>Time:</strong>{" "}
+                    {searchedBooking.time}
+                  </p>
+
+                  <p>
+                    <strong>Address:</strong>{" "}
+                    {searchedBooking.address}
+                  </p>
+
+                </div>
+
+              </div>
+
+            )}
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* =========================================
+          ADMIN LOGIN
+      ========================================= */}
+
+      {showLogin && (
+
+        <div className="modal-overlay">
+
+          <div className="booking-modal">
+
+            <button
+              className="modal-close"
+              onClick={() =>
+                setShowLogin(false)
+              }
+            >
+              ×
+            </button>
+
+            <h2>
+              Admin Login
+            </h2>
+
+            <p>
+              Authorized personnel only.
+            </p>
+
+            <form
+              onSubmit={handleAdminLogin}
+            >
+
+              <input
+                type="text"
+                placeholder="Username"
+                value={loginData.username}
+                onChange={(event) =>
+                  setLoginData({
+                    ...loginData,
+                    username:
+                      event.target.value,
+                  })
+                }
+                required
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                value={loginData.password}
+                onChange={(event) =>
+                  setLoginData({
+                    ...loginData,
+                    password:
+                      event.target.value,
+                  })
+                }
+                required
+              />
+
+              <button
+                type="submit"
+                className="modal-submit"
+              >
+                Login →
+              </button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* =========================================
+          ADMIN DASHBOARD
+      ========================================= */}
+
+      {showAdmin && isAdminLoggedIn && (
+
+        <div className="modal-overlay">
+
+          <div className="admin-modal">
+
+            <button
+              className="modal-close"
+              onClick={() =>
+                setShowAdmin(false)
+              }
+            >
+              ×
+            </button>
+
+
+            {/* ADMIN HEADER */}
+
+            <div className="admin-header">
+
+              <div>
+
+                <span className="section-label">
+                  RAJDHANI CARE
+                </span>
+
+                <h2>
+                  Admin Dashboard
+                </h2>
+
+              </div>
+
+              <button
+                className="refresh-button"
+                onClick={loadBookings}
+                disabled={refreshing}
+              >
+                {refreshing
+                  ? "Refreshing..."
+                  : "↻ Refresh"}
+              </button>
+
+            </div>
+
+
+            {/* =====================================
+                STATISTICS
+            ===================================== */}
+
+            <div className="dashboard-stats">
+
+              <div
+                className="stat-card stat-total"
+                onClick={() =>
+                  setStatusFilter("ALL")
+                }
+              >
+
+                <span>
+                  TOTAL BOOKINGS
+                </span>
+
+                <strong>
+                  {totalBookings}
+                </strong>
+
+              </div>
+
+
+              <div
+                className="stat-card stat-pending"
+                onClick={() =>
+                  setStatusFilter("PENDING")
+                }
+              >
+
+                <span>
+                  PENDING
+                </span>
+
+                <strong>
+                  {pendingBookings}
+                </strong>
+
+              </div>
+
+
+              <div
+                className="stat-card stat-confirmed"
+                onClick={() =>
+                  setStatusFilter("CONFIRMED")
+                }
+              >
+
+                <span>
+                  CONFIRMED
+                </span>
+
+                <strong>
+                  {confirmedBookings}
+                </strong>
+
+              </div>
+
+
+              <div
+                className="stat-card stat-completed"
+                onClick={() =>
+                  setStatusFilter("COMPLETED")
+                }
+              >
+
+                <span>
+                  COMPLETED
+                </span>
+
+                <strong>
+                  {completedBookings}
+                </strong>
+
+              </div>
+
+
+              <div
+                className="stat-card stat-cancelled"
+                onClick={() =>
+                  setStatusFilter("CANCELLED")
+                }
+              >
+
+                <span>
+                  CANCELLED
+                </span>
+
+                <strong>
+                  {cancelledBookings}
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            {/* =====================================
+                SEARCH / FILTER
+            ===================================== */}
+
+            <div className="admin-tools">
+
+              <input
+                type="text"
+                placeholder="Search by name, phone, service or ID..."
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                onChange={(event) =>
+                  setSearchText(
+                    event.target.value
+                  )
+                }
+                className="admin-search"
               />
 
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(event) =>
+                  setStatusFilter(
+                    event.target.value
+                  )
+                }
+                className="admin-filter"
               >
-                <option value="ALL">All Status</option>
-                <option value="PENDING">Pending</option>
-                <option value="CONFIRMED">Confirmed</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="CANCELLED">Cancelled</option>
+
+                <option value="ALL">
+                  All Status
+                </option>
+
+                <option value="PENDING">
+                  Pending
+                </option>
+
+                <option value="CONFIRMED">
+                  Confirmed
+                </option>
+
+                <option value="COMPLETED">
+                  Completed
+                </option>
+
+                <option value="CANCELLED">
+                  Cancelled
+                </option>
+
               </select>
+
             </div>
 
-            <div className="admin-top-actions">
-              <button
-                type="button"
-                className="refresh-btn"
-                onClick={loadBookings}
-              >
-                🔄 Refresh
-              </button>
 
-              <button
-                type="button"
-                className="logout-btn"
-                onClick={handleLogout}
-              >
-                🚪 Logout
-              </button>
+            {/* RESULT COUNT */}
+
+            <div className="admin-result-count">
+
+              Showing{" "}
+              <strong>
+                {filteredBookings.length}
+              </strong>{" "}
+              of{" "}
+              <strong>
+                {totalBookings}
+              </strong>{" "}
+              bookings
+
             </div>
 
-            {filteredBookings.length === 0 ? (
-              <p className="no-bookings">No bookings found.</p>
-            ) : (
-              <div className="admin-bookings">
-                {filteredBookings.map((item) => {
-                  const currentStatus = item.status || "PENDING";
 
-                  return (
-                    <div className="admin-booking-card" key={item.id}>
-                      <div className="booking-header">
-                        <h3>Booking #{item.id}</h3>
-                        <span>{item.service}</span>
-                      </div>
+            {/* =====================================
+                BOOKINGS
+            ===================================== */}
 
-                      <div className="status-row">
-                        <strong>Status:</strong>
+            <div className="admin-bookings">
+
+              {filteredBookings.length === 0 ? (
+
+                <div className="empty-bookings">
+
+                  <h3>
+                    No bookings found
+                  </h3>
+
+                  <p>
+                    Try changing your search
+                    or status filter.
+                  </p>
+
+                </div>
+
+              ) : (
+
+                filteredBookings.map(
+                  (item) => (
+
+                    <div
+                      className="admin-booking-card"
+                      key={item.id}
+                    >
+
+                      {/* TOP */}
+
+                      <div className="admin-booking-top">
+
+                        <div>
+
+                          <span className="booking-id">
+                            Booking #{item.id}
+                          </span>
+
+                          <h3>
+                            {item.name}
+                          </h3>
+
+                        </div>
 
                         <span
-                          className={`booking-status ${getStatusClass(
-                            currentStatus
+                          className={`status-badge ${getStatusClass(
+                            item.status
                           )}`}
                         >
-                          {currentStatus}
+                          {getBookingStatus(
+                            item
+                          )}
                         </span>
+
                       </div>
 
-                      <p>
-                        👤 <strong>Name:</strong> {item.name}
-                      </p>
 
-                      <p>
-                        📞 <strong>Phone:</strong> {item.phone}
-                      </p>
+                      {/* DETAILS */}
 
-                      <p>
-                        📍 <strong>Address:</strong> {item.address}
-                      </p>
+                      <div className="admin-booking-details">
 
-                      <p>
-                        📅 <strong>Date:</strong> {item.date}
-                      </p>
+                        <p>
+                          <strong>
+                            Phone:
+                          </strong>{" "}
+                          {item.phone}
+                        </p>
 
-                      <p>
-                        ⏰ <strong>Time:</strong> {item.time}
-                      </p>
+                        <p>
+                          <strong>
+                            Service:
+                          </strong>{" "}
+                          {item.service}
+                        </p>
 
-                      <div className="booking-actions">
-                        <button
-                          type="button"
-                          className="confirm-btn"
-                          onClick={() =>
-                            updateBookingStatus(item.id, "CONFIRMED")
-                          }
-                        >
-                          ✅ Confirm
-                        </button>
+                        <p>
+                          <strong>
+                            Date:
+                          </strong>{" "}
+                          {item.date}
+                        </p>
 
-                        <button
-                          type="button"
-                          className="cancel-btn"
-                          onClick={() =>
-                            updateBookingStatus(item.id, "CANCELLED")
-                          }
-                        >
-                          ❌ Cancel
-                        </button>
+                        <p>
+                          <strong>
+                            Time:
+                          </strong>{" "}
+                          {item.time}
+                        </p>
 
-                        <button
-                          type="button"
-                          className="complete-btn"
-                          onClick={() =>
-                            updateBookingStatus(item.id, "COMPLETED")
-                          }
-                        >
-                          🔵 Complete
-                        </button>
+                        <p>
+                          <strong>
+                            Address:
+                          </strong>{" "}
+                          {item.address}
+                        </p>
 
-                        <button
-                          type="button"
-                          className="delete-btn"
-                          onClick={() => deleteBooking(item.id)}
-                        >
-                          🗑️ Delete
-                        </button>
                       </div>
+
+
+                      {/* STATUS ACTIONS */}
+
+                      <div className="status-actions">
+
+                        <button
+                          className="confirm-button"
+                          onClick={() =>
+                            updateBookingStatus(
+                              item.id,
+                              "CONFIRMED"
+                            )
+                          }
+                        >
+                          ✓ Confirm
+                        </button>
+
+                        <button
+                          className="pending-button"
+                          onClick={() =>
+                            updateBookingStatus(
+                              item.id,
+                              "PENDING"
+                            )
+                          }
+                        >
+                          ◷ Pending
+                        </button>
+
+                        <button
+                          className="complete-button"
+                          onClick={() =>
+                            updateBookingStatus(
+                              item.id,
+                              "COMPLETED"
+                            )
+                          }
+                        >
+                          ✓ Complete
+                        </button>
+
+                        <button
+                          className="cancel-button"
+                          onClick={() =>
+                            updateBookingStatus(
+                              item.id,
+                              "CANCELLED"
+                            )
+                          }
+                        >
+                          × Cancel
+                        </button>
+
+                        <button
+                          className="delete-button"
+                          onClick={() =>
+                            deleteBooking(
+                              item.id
+                            )
+                          }
+                        >
+                          Delete
+                        </button>
+
+                      </div>
+
                     </div>
-                  );
-                })}
-              </div>
-            )}
+
+                  )
+                )
+
+              )}
+
+            </div>
+
+
+            {/* LOGOUT */}
+
+            <button
+              className="admin-logout"
+              onClick={() => {
+                setIsAdminLoggedIn(false);
+                setShowAdmin(false);
+              }}
+            >
+              Logout
+            </button>
+
           </div>
+
         </div>
+
       )}
+
     </div>
   );
 }
