@@ -4,8 +4,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "booking")
 public class Booking {
 
     @Id
@@ -13,15 +15,29 @@ public class Booking {
     private Long id;
 
     private String name;
+
     private String phone;
+
     private String address;
+
     private String service;
+
     private String date;
+
     private String time;
+
     private String status;
+
+    // =========================
+    // CONSTRUCTOR
+    // =========================
 
     public Booking() {
     }
+
+    // =========================
+    // GETTER & SETTER
+    // =========================
 
     public Long getId() {
         return id;

@@ -54,32 +54,40 @@ public class BookingController {
         this.bookingRepository = bookingRepository;
     }
 
-    // =========================
+    // =========================================================
     // CREATE BOOKING
-    // =========================
+    // POST /api/bookings
+    // =========================================================
 
     @PostMapping
-    public Booking createBooking(@RequestBody Booking booking) {
+    public ResponseEntity<Booking> createBooking(
+            @RequestBody Booking booking) {
 
-        if (booking.getStatus() == null || booking.getStatus().isEmpty()) {
-            booking.setStatus("PENDING");
-        }
+        // New bookings are always PENDING
+        booking.setStatus("PENDING");
 
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        return ResponseEntity.ok(savedBooking);
     }
 
-    // =========================
+    // =========================================================
     // GET ALL BOOKINGS
-    // =========================
+    // GET /api/bookings
+    // =========================================================
 
     @GetMapping
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+    public ResponseEntity<List<Booking>> getAllBookings() {
+
+        List<Booking> bookings = bookingRepository.findAll();
+
+        return ResponseEntity.ok(bookings);
     }
 
-    // =========================
+    // =========================================================
     // GET BOOKING BY ID
-    // =========================
+    // GET /api/bookings/{id}
+    // =========================================================
 
     @GetMapping("/{id}")
     public ResponseEntity<Booking> getBookingById(
@@ -90,9 +98,10 @@ public class BookingController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // =========================
-    // CHECK BOOKING BY ID + PHONE
-    // =========================
+    // =========================================================
+    // CHECK BOOKING USING ID + PHONE
+    // GET /api/bookings/{id}/phone/{phone}
+    // =========================================================
 
     @GetMapping("/{id}/phone/{phone}")
     public ResponseEntity<Booking> getBookingByIdAndPhone(
@@ -104,19 +113,44 @@ public class BookingController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // =========================
+    // =========================================================
     // UPDATE BOOKING STATUS
-    // =========================
+    // PUT /api/bookings/{id}/status
+    // =========================================================
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Booking> updateBookingStatus(
+    public ResponseEntity<?> updateBookingStatus(
             @PathVariable Long id,
             @RequestBody StatusRequest request) {
+
+        if (request == null ||
+                request.getStatus() == null ||
+                request.getStatus().trim().isEmpty()) {
+
+            return ResponseEntity.badRequest()
+                    .body("Status is required.");
+        }
+
+        String newStatus =
+                request.getStatus().trim().toUpperCase();
+
+        // Only these statuses are allowed
+        if (!newStatus.equals("PENDING")
+                && !newStatus.equals("CONFIRMED")
+                && !newStatus.equals("CANCELLED")
+                && !newStatus.equals("COMPLETED")) {
+
+            return ResponseEntity.badRequest()
+                    .body(
+                        "Invalid status. Allowed values: "
+                        + "PENDING, CONFIRMED, CANCELLED, COMPLETED"
+                    );
+        }
 
         return bookingRepository.findById(id)
                 .map(booking -> {
 
-                    booking.setStatus(request.getStatus());
+                    booking.setStatus(newStatus);
 
                     Booking updatedBooking =
                             bookingRepository.save(booking);
@@ -126,9 +160,10 @@ public class BookingController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // =========================
+    // =========================================================
     // DELETE BOOKING
-    // =========================
+    // DELETE /api/bookings/{id}
+    // =========================================================
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBooking(
@@ -143,9 +178,9 @@ public class BookingController {
         return ResponseEntity.noContent().build();
     }
 
-    // =========================
+    // =========================================================
     // STATUS REQUEST CLASS
-    // =========================
+    // =========================================================
 
     public static class StatusRequest {
 
